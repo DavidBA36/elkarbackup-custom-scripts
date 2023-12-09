@@ -1,0 +1,37 @@
+1º añadir el procedimiento almacenado sp_BackupDatabases.sql
+
+2º ejecutar este comando:
+
+{backup_sql.cmd}
+
+[...]\PStools\PsExec.exe /accepteula
+[...]\PStools\PsExec.exe -h -u [USER] -p [PASSWORD] [...]\backup_sql.bat
+
+{backup_sql.bat}
+
+@echo off
+del E:\SQLBackups\*.* /F /Q
+
+-autenticación por windows
+
+sqlcmd -S [nombre_servidor] -E -Q "EXEC sp_BackupDatabases @backupLocation='[UBICACION_BACKUP]', @backupType='F'"
+
+-autenticación por usuario interno
+
+sqlcmd -U [Login] -P [Password] -S .\SQLEXPRESS -Q "EXEC sp_BackupDatabases  @backupLocation ='[UBICACION_BACKUP]', @BackupType='F'"
+
+Tipos:
+
+F= Copia completa
+D= Copia diferencial
+L= Backup del Log
+
+Si no indicamos nada copia todas las bases de datos, se puede añadir el parámetro  @databaseName='USERDB' para una base de datos concreta.
+
+{rsync.conf}
+
+[BackupSQLFirst]
+path = /cygdrive/c/utiles/token #carpeta vacia para volcado dummy
+read only = true
+transfer logging = yes
+pre-xfer exec = /cygdrive/c/utiles/backup_sql.cmd
